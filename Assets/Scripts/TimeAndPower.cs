@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class TimeAndPower : MonoBehaviour
 {
@@ -16,8 +17,9 @@ public class TimeAndPower : MonoBehaviour
     public Sprite PowerBar3;
     public Sprite PowerBar4;
     public Sprite PowerBar5;
-
+    int index;
     private string[] timeTexts = { "12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM" };
+    bool triggered = false;
 
     // Use this for initialization
     void Start()
@@ -50,16 +52,20 @@ public class TimeAndPower : MonoBehaviour
         }
 
         Time -= UnityEngine.Time.deltaTime;
-        int index = Mathf.Clamp(6 - Mathf.CeilToInt(Time / 60), 0, 6);
+        if (Time < 0 && triggered == false)
+        {
+            triggered = true;
+            PlayerPrefs.SetInt("Night", PlayerPrefs.GetInt("Night", 1) + 1);
+            PlayerPrefs.Save();
+            SceneManager.LoadSceneAsync("Win");
+        }
+        index = Mathf.Clamp(6 - Mathf.CeilToInt(Time / 60), 0, 6);
         TimeCounter.GetComponent<Text>().text = timeTexts[index];
-        // Clamp PowerUsage between 1 and 5
 
         PowerUsage = Mathf.Clamp(PowerUsage, 1, 5);
 
-        // Decrease PowerDrain based on deltaTime
         PowerDrain -= UnityEngine.Time.deltaTime;
 
-        // Check if it's time to reduce power
         if (PowerDrain <= 0)
         {
             PowerLeft -= 1;
@@ -81,10 +87,9 @@ public class TimeAndPower : MonoBehaviour
             case 4:
                 return 2.4f;
             case 5:
-                return 1.2f; // Adjusted for 5 bars, if needed
+                return 1.2f; 
             default:
-                Debug.LogError("Invalid PowerUsage value. Please enter a value between 1 and 5.");
-                return 9.6f; // Default to 1 bar rate if invalid
+                return 9.6f;
         }
     }
 }

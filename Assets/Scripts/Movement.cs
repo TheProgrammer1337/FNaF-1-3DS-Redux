@@ -4,15 +4,15 @@ using UnityEngine.UI;
 
 public class Movement : MonoBehaviour
 {
-    int Night;
+    public int Night;
     public int BonnieDifficulty;
     public int ChicaDifficulty;
-    int FreddyDifficulty;
+    public int FreddyDifficulty;
     public int FoxyDifficulty;
 
     public string BonnieLocation;
     public string ChicaLocation;
-    public int FreddyLocation;
+    public string FreddyLocation;
     public int FoxyLocation;
     public float FoxyMovementCountdownBonus;
     public float FoxyMovementCountdown;
@@ -34,21 +34,31 @@ public class Movement : MonoBehaviour
     public AudioSource StaticDeath;
     public bool bonnieinside = false;
     bool chicainside = false;
-    public bool CameraIsUp = true;
+    public bool CameraIsntUp = true;
     public GameObject Tablet;
     public GameObject DividedStatic;
     float cooldown;
     bool once = false;
+    public bool ReadyForFreddy;
 
     void Update()
     {
+        if (ReadyForFreddy == true)
+        {
+            if (CameraIsntUp == true && BonnieLocation != "CAM1A" && ChicaLocation != "CAM1A")
+            {
+                StartCoroutine("FreddyMovement");
+                ReadyForFreddy = false;
+            }
+        }
+
         // Foxy code
         {
-            if (CameraIsUp == !true)
+            if (CameraIsntUp == !true)
             {
                 FoxyMovementCountdownBonus = UnityEngine.Random.Range(0.83f, 16.67f);
             }
-            if (CameraIsUp == !false)
+            if (CameraIsntUp == !false)
             {
                 if (FoxyMovementCountdownBonus > 0)
                 {
@@ -84,10 +94,11 @@ public class Movement : MonoBehaviour
     }
     IEnumerator Camera()
     {
-        CameraIsUp = !CameraIsUp;
+        CameraIsntUp = !CameraIsntUp;
         Tablet.SetActive(true);
-        if (CameraIsUp == true)
+        if (CameraIsntUp == true)
         {
+            Resources.UnloadUnusedAssets();
             Tablet.GetComponent<Animator>().SetBool("Up", false);
             CameraObject.enabled = !CameraObject.IsActive() == true;
             LowerCanvas.SetActive(false);
@@ -138,7 +149,7 @@ public class Movement : MonoBehaviour
         }
         yield return new WaitForSeconds(0.24f);
         Tablet.SetActive(false);
-        if (CameraIsUp == true)
+        if (CameraIsntUp == true)
         {
 
             LowerCanvas.SetActive(false);
@@ -171,7 +182,6 @@ public class Movement : MonoBehaviour
             CameraObject.enabled = true;
             CameraStatic.SetActive(true);
 
-            // fix this
 
             if (once == false)
             {
@@ -220,9 +230,10 @@ public class Movement : MonoBehaviour
     }
     void Start()
     {
+        StartCoroutine("FreddyMovementCheck");
         StartCoroutine("BonnieMovement");
         StartCoroutine("ChicaMovement");
-        Night = PlayerPrefs.GetInt("Night", Night);
+        Night = PlayerPrefs.GetInt("Night", 1);
         if (Night == 1)
         {
             BonnieDifficulty = 0;
@@ -505,5 +516,61 @@ public class Movement : MonoBehaviour
             Debug.Log(BonnieLocation.ToString());
         }
     }
+    IEnumerator FreddyMovementCheck()
+    {
+        while (true)
+        {
+            Debug.Log("FreddyMovementCheck");
+            yield return new WaitForSeconds(3.01f);
+            if (CameraIsntUp == true)
+            {
+                int rand = Random.Range(0, 21);
+                if (rand < FreddyDifficulty)
+                {
+                    StartCoroutine("FreddyCountdown");
+                }
+            }
+            else
+            {
+                Debug.Log("FreddyMovementCheckFail");
+            }
+        }
 
-}
+
+
+    }
+    IEnumerator FreddyCountdown()
+    {
+        float waitTime = Mathf.Max(0, 16f - 1.67f * FreddyDifficulty);
+        yield return new WaitForSeconds(waitTime);
+        ReadyForFreddy = true;
+    }
+    IEnumerator FreddyMovement()
+    {
+            yield return new WaitForSeconds(0.1f);
+            if (CameraIsntUp == true)
+            {
+                switch (FreddyLocation)
+                {
+                    case "CAM1A":
+                        FreddyLocation = "CAM1B";
+                        break;
+                    case "CAM1B":
+                        FreddyLocation = "CAM7";
+                        break;
+                    case "CAM7":
+                        FreddyLocation = "CAM6";
+                        break;
+                    case "CAM6":
+                        FreddyLocation = "CAM4A";
+                        break;
+                    case "CAM4A":
+                        FreddyLocation = "CAM4B";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    }

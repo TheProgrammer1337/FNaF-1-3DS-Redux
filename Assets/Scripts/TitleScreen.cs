@@ -9,11 +9,13 @@ public class TitleScreen : MonoBehaviour
     public GameObject Pointer;
     public GameObject NewsPaper;
     public GameObject LowerCanvas;
+    public GameObject NightIndicator;
     private bool newgame;
     // Use this for initialization
     void Start()
     {
         StartCoroutine("Animation");
+        NightIndicator.GetComponent<Text>().text = "Night " + PlayerPrefs.GetInt("Night").ToString();
     }
     public int position = 0;
     // Update is called once per frame
@@ -21,10 +23,11 @@ public class TitleScreen : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            if (position > -3)
+            if (position > -1)
             {
                 position -= 1;
                 Pointer.transform.localPosition -= new Vector3(0, 53);
+                NightIndicator.SetActive(true);
             }
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -33,6 +36,7 @@ public class TitleScreen : MonoBehaviour
             {
                 position += 1;
                 Pointer.transform.localPosition += new Vector3(0, 53);
+                NightIndicator.SetActive(false);
             }
 
         }

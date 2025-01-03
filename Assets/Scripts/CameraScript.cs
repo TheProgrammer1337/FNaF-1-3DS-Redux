@@ -47,7 +47,7 @@ public class CameraScript : MonoBehaviour
     {
         SpriteHolder.GetComponent<Image>().color = new Color(256, 256, 256);
         buttonpublic = button;
-        if (Movement.CameraIsUp == false)
+        if (Movement.CameraIsntUp == false)
         {
             DividedStatic.SetActive(true);
 
@@ -78,10 +78,15 @@ public class CameraScript : MonoBehaviour
             {
                 SpriteHolder.GetComponent<Image>().sprite = Resources.Load<Sprite>("Cameras/CAM1A/CAM1AChicaMissing");
             }
+            else if (Movement.FreddyLocation != "CAM1A")
+            {
+                SpriteHolder.GetComponent<Image>().sprite = Resources.Load<Sprite>("Cameras/CAM1A/CAM1AEmpty");
+            }
             else if (Movement.BonnieLocation != "CAM1A" && Movement.ChicaLocation != "CAM1A")
             {
                 SpriteHolder.GetComponent<Image>().sprite = Resources.Load<Sprite>("Cameras/CAM1A/CAM1AFreddy");
             }
+
         }
         if (button == "CAM1B")
         {
@@ -225,6 +230,7 @@ public class CameraScript : MonoBehaviour
 
 
         }
+        Resources.UnloadUnusedAssets();
         currentbutton = button;
     }
     IEnumerator CAM2AAnimation()
